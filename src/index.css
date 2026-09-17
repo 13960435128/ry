@@ -3,6 +3,10 @@
   --card: #0b1220;
   --accent: #7c3aed;
   --text: #e6edf3;
+  --muted: #97a0b8;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
 }
 
 body, html, #root {
@@ -25,7 +29,7 @@ body, html, #root {
 
 .subtitle{
   margin: 0 0 16px 0;
-  color: #97a0b8;
+  color: var(--muted);
 }
 
 .item{
@@ -36,6 +40,7 @@ body, html, #root {
   background: rgba(255,255,255,0.02);
   border-radius:8px;
   margin-bottom:8px;
+  gap: 12px;
 }
 
 .transcript{
@@ -43,13 +48,45 @@ body, html, #root {
   color: #9aa4bd;
 }
 
-button{
+.status {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
+.status.error {
+  color: #fca5a5;
+}
+
+.item-button {
   background: var(--accent);
   color: white;
   border: none;
   padding: 8px 12px;
-  border-radius:6px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.item-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.item-button.playing {
+  background: var(--success);
+}
+
+.item-button.loading {
+  background: var(--warning);
+  cursor: wait;
+}
+
+.item-button.error {
+  background: var(--danger);
+}
+
+.item-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .footer{
