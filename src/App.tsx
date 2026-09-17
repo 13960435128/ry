@@ -1,20 +1,72 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { listening } from './data/listening'
 
 export default function App() {
   const [playingId, setPlayingId] = useState<number | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const stopCurrentAudio = () => {
+    const currentAudio = audioRef.current
+    if (!currentAudio) return
+
+    currentAudio.pause()
+    currentAudio.currentTime = 0
+    audioRef.current = null
+  }
+
+  useEffect(() => {
+    return () => {
+      stopCurrentAudio()
+    }
+  }, [])
 
   const togglePlay = (item: typeof listening[number]) => {
-    if (playingId === item.id) {
-      // stop by creating a blank audio (simple approach)
+    const currentAudio = audioRef.current
+
+    if (playingId === item.id && currentAudio) {
+      stopCurrentAudio()
       setPlayingId(null)
       return
     }
+
+    if (currentAudio) {
+      currentAudio.pause()
+      currentAudio.currentTime = 0
+    }
+
     const audio = new Audio(item.audio)
-    audio.play()
-    setPlayingId(item.id)
-    // stop playing state after the audio ends
-    audio.addEventListener('ended', () => setPlayingId(null))
+    audioRef.current = audio
+
+    const handleEnded = () => {
+      if (audioRef.current === audio) {
+        audioRef.current = null
+      }
+      setPlayingId((prev) => (prev === item.id ? null : prev))
+    }
+
+    const handleError = () => {
+      if (audioRef.current === audio) {
+        audioRef.current = null
+      }
+      setPlayingId((prev) => (prev === item.id ? null : prev))
+    }
+
+    audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('error', handleError)
+
+    audio
+      .play()
+      .then(() => {
+        setPlayingId(item.id)
+      })
+      .catch(() => {
+        audio.removeEventListener('ended', handleEnded)
+        audio.removeEventListener('error', handleError)
+        if (audioRef.current === audio) {
+          audioRef.current = null
+        }
+        setPlayingId((prev) => (prev === item.id ? null : prev))
+      })
   }
 
   return (
