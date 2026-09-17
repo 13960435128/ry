@@ -1,17 +1,16 @@
-import React, { useCallback } from 'react'
-import ListeningItem, { type ListeningItemData } from './components/ListeningItem'
+import React, { useEffect } from 'react'
 import { listening } from './data/listening'
+import ListeningItem from './components/ListeningItem'
 import { useAudioPlayer } from './hooks/useAudioPlayer'
 
 export default function App() {
-  const { playingId, togglePlay } = useAudioPlayer()
+  const { playingId, loadingId, errorId, togglePlay, preloadAudio } = useAudioPlayer()
 
-  const handleToggle = useCallback(
-    (item: ListeningItemData) => {
-      togglePlay(item)
-    },
-    [togglePlay]
-  )
+  useEffect(() => {
+    listening.forEach((item) => {
+      preloadAudio(item.audio)
+    })
+  }, [preloadAudio])
 
   return (
     <div className="app">
@@ -29,7 +28,9 @@ export default function App() {
                 key={it.id}
                 item={it}
                 isPlaying={playingId === it.id}
-                onToggle={handleToggle}
+                isLoading={loadingId === it.id}
+                hasError={errorId === it.id}
+                onToggle={togglePlay}
               />
             ))}
           </ul>
